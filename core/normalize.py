@@ -107,6 +107,32 @@ def koy_snap(ham: str) -> KoyEslesme:
                       kullanici_onayi_gerek=False, yeni_koy=True, adaylar=adaylar)
 
 
+# Materials joined on one handwritten line: split " - ", " / ", ",", ";".
+# Dash/slash must be space-padded so compound words ("On-Off") are not split.
+_MALZEME_AYIRAC = re.compile(r"\s+[-–—/]\s+|\s*[,;]\s*")
+
+
+def bol_kalemler(kalemler: list[Kalem]) -> list[Kalem]:
+    """Safety net: if the model lumped several materials into one malzeme_adi,
+    split them into separate kalemler. The quantity/unit on the lumped item is
+    kept by the LAST piece (the measured consumable, e.g. '25 kg Sıvı Klor');
+    other pieces default to miktar=1, ölçü birimi boş."""
+    out: list[Kalem] = []
+    for k in kalemler:
+        parcalar = [p.strip() for p in _MALZEME_AYIRAC.split(k.malzeme_adi or "") if p.strip()]
+        if len(parcalar) <= 1:
+            out.append(k)
+            continue
+        son = len(parcalar) - 1
+        for i, p in enumerate(parcalar):
+            out.append(k.model_copy(update={
+                "malzeme_adi": p,
+                "miktar": k.miktar if i == son else 1,
+                "olcu_birimi": k.olcu_birimi if i == son else None,
+            }))
+    return out
+
+
 def birim_normalize(olcu_birimi: Optional[str]) -> str:
     b = (olcu_birimi or "").strip()
     return b if b else config.OLCU_BIRIMI_VARSAYILAN

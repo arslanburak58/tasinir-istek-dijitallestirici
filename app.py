@@ -76,6 +76,7 @@ if files and st.button("Fotoğrafları çıkar", type="primary"):
     for i, f in enumerate(files):
         try:
             tutanak = vision.cikar(f.getvalue(), media_type=f.type, dosya_adi=f.name)
+            tutanak.kalemler = normalize.bol_kalemler(tutanak.kalemler)  # 1 satır = 1 malzeme
             ogrenme.uygula(tutanak.kalemler, _hafiza())  # auto-fix known corrections
             for k in tutanak.kalemler:
                 rows.append(k.model_dump())
