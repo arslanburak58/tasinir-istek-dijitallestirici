@@ -9,7 +9,7 @@ import pandas as pd
 import streamlit as st
 
 import config
-from core import excel_writer, normalize, vision
+from core import excel_writer, normalize, ogrenme, vision
 from core.schema import Kalem
 
 st.set_page_config(page_title="Taşınır İstek Belgesi Dijitalleştirici", layout="wide")
@@ -18,6 +18,13 @@ st.title("Taşınır İstek Belgesi Dijitalleştirici")
 ss = st.session_state
 ss.setdefault("rows", None)
 ss.setdefault("giris_ok", False)
+
+
+def _hafiza() -> dict:
+    """Load the persistent correction memory once per session."""
+    if "hafiza" not in ss:
+        ss.hafiza, ss.hafiza_sha = ogrenme.yukle()
+    return ss.hafiza
 
 
 def _parola_kontrol():
@@ -40,8 +47,15 @@ def _parola_kontrol():
 
 _parola_kontrol()
 
+_s = ogrenme.sayilar(_hafiza())
+_depo = "GitHub (kalıcı)" if ogrenme.aktif_github() else "yerel/oturum"
+st.caption(f"🧠 Öğrenilen düzeltmeler — köy: {_s['koy']} · malzeme: {_s['malzeme']} · "
+           f"birim: {_s['birim']}  •  depo: {_depo}")
+
 KOLONLAR = ["koy", "malzeme_adi", "miktar", "olcu_birimi", "kodu",
             "guven_koy", "guven_malzeme", "guven_miktar"]
+GORUNUR = ["koy", "malzeme_adi", "miktar", "olcu_birimi", "kodu",
+           "guven_koy", "guven_malzeme", "guven_miktar"]
 
 
 def _dusuk(row) -> bool:
@@ -62,6 +76,7 @@ if files and st.button("Fotoğrafları çıkar", type="primary"):
     for i, f in enumerate(files):
         try:
             tutanak = vision.cikar(f.getvalue(), media_type=f.type, dosya_adi=f.name)
+            ogrenme.uygula(tutanak.kalemler, _hafiza())  # auto-fix known corrections
             for k in tutanak.kalemler:
                 rows.append(k.model_dump())
         except Exception as e:  # noqa: BLE001 - surface to user
@@ -76,6 +91,10 @@ if files and st.button("Fotoğrafları çıkar", type="primary"):
 if ss.rows is not None and len(ss.rows) > 0:
     st.header("2) İncele ve düzelt")
     df = pd.DataFrame(ss.rows, columns=KOLONLAR)
+    # snapshot of values as shown (post-memory) -> used to learn further edits
+    df["_orig_koy"] = df["koy"]
+    df["_orig_malzeme"] = df["malzeme_adi"]
+    df["_orig_birim"] = df["olcu_birimi"]
     n_dusuk = int(df.apply(_dusuk, axis=1).sum())
     if n_dusuk:
         st.warning(f"⚠️ {n_dusuk} kalemde düşük güven var — özellikle kırmızı satırları kontrol edin.")
@@ -88,6 +107,7 @@ if ss.rows is not None and len(ss.rows) > 0:
         df,
         num_rows="dynamic",
         use_container_width=True,
+        column_order=GORUNUR,  # hide _orig_* (kept in returned data for learning)
         column_config={
             "koy": "Köy",
             "malzeme_adi": "Malzeme",
@@ -179,3 +199,21 @@ if ss.rows is not None and len(ss.rows) > 0:
                 file_name=yol.name,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             )
+
+        # --- Learn from this session's corrections and persist ---
+        data = _hafiza()
+        degisti = 0
+        for _, r in edited.iterrows():
+            cur_koy = str(r["koy"]).strip()
+            final_koy = koy_haritasi.get(cur_koy, cur_koy)
+            degisti += ogrenme.ekle(data, "koy", str(r.get("_orig_koy", "")), final_koy)
+            degisti += ogrenme.ekle(data, "malzeme", str(r.get("_orig_malzeme", "")), str(r["malzeme_adi"]))
+            cur_b = str(r["olcu_birimi"]).strip() if pd.notna(r["olcu_birimi"]) else ""
+            degisti += ogrenme.ekle(data, "birim", str(r.get("_orig_birim", "")), cur_b)
+        if degisti:
+            try:
+                ss.hafiza_sha = ogrenme.kaydet(data, ss.get("hafiza_sha"))
+                st.info(f"🧠 {degisti} yeni düzeltme hafızaya kaydedildi "
+                        "(bir dahaki sefere otomatik uygulanacak).")
+            except Exception as e:  # noqa: BLE001
+                st.warning(f"Düzeltmeler bu oturumda öğrenildi ama kalıcı kaydedilemedi: {e}")

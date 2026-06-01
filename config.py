@@ -42,6 +42,16 @@ VISION_MAX_TOKENS = int(_secret("VISION_MAX_TOKENS", "4096"))
 # share the URL without exposing your API credits to strangers. ---
 APP_PAROLA = _secret("APP_PAROLA")
 
+# --- Learning memory (persistent corrections). Stored on a SEPARATE GitHub
+# branch so saving does not redeploy the app. Falls back to a local file when
+# no token is set (local launcher use). ---
+GITHUB_TOKEN = _secret("GITHUB_TOKEN")
+GITHUB_REPO = _secret("GITHUB_REPO", "arslanburak58/tasinir-istek-dijitallestirici")
+GITHUB_DEFAULT_BRANCH = _secret("GITHUB_DEFAULT_BRANCH", "main")
+OGRENME_BRANCH = _secret("OGRENME_BRANCH", "ogrenme-verisi")
+OGRENME_PATH = "ogrenme.json"
+OGRENME_LOCAL = BASE_DIR / "data" / "ogrenme.json"
+
 # --- Document defaults (verified from last-year records: KODU x911, single birim) ---
 BIRIM_ADI = "Su ve Kanal Hizmetleri Müdürlüğü"
 KODU_VARSAYILAN = "150.11.02.02.01."
