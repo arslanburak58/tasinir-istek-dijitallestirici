@@ -1,0 +1,6 @@
+[server]
+# Telefondan çekilen yüksek çözünürlüklü fotoğraflar için yükleme sınırı (MB)
+maxUploadSize = 25
+
+[theme]
+base = "light"
