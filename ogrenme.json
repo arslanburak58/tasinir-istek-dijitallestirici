@@ -1,0 +1,18 @@
+{
+  "koy": {
+    "merkez duadulu": "Merkez Durdulu",
+    "merkez hali": "Merkez Hanlı",
+    "merkez kabardeal": "Merkez Kabasakal",
+    "merkez kayurcel": "Merkez Koyuncu"
+  },
+  "malzeme": {
+    "sarj kiti": "Solar Şarj Ünitesi",
+    "pompa": "Tam Otomatik Klorlama Cihazı",
+    "orp": "ORP Klor Ölçüm Cihazı",
+    "aku": "Akü(Batarya)",
+    "klor": "Sıvı Klor"
+  },
+  "birim": {
+    "nan": "Ad."
+  }
+}
