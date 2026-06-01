@@ -19,11 +19,26 @@ alanın güvenini düşük ver.
 
 Her malzeme kalemi için şu alanları çıkar:
 - koy: köy/mahalle adı (Türkçe karakterleri koru: ç ğ ı İ ş ü ö)
-- malzeme_adi: istenen malzemenin adı
+- malzeme_adi: TEK bir malzemenin adı
 - miktar: sayı (sadece rakam; "bir" yazılıysa 1)
 - olcu_birimi: yazılı değilse boş bırak (varsayılan sonradan 'Ad' atanır)
 - kodu: taşınır kodu görünüyorsa yaz, yoksa boş
 Belgede birden çok köy olabilir; her kalemi ait olduğu köyle eşle.
+
+ÇOK ÖNEMLİ — HER MALZEME AYRI BİR KALEM:
+Bir köyün karşısında '-', ',', '/' ile ayrılmış birden çok malzeme varsa, HER \
+MALZEMEYİ AYRI bir kalem olarak çıkar. ASLA birden çok malzemeyi tek malzeme_adi \
+içinde birleştirme. Her malzemenin KENDİ miktarı ve ölçü birimi olur. Bir sayı/birim \
+(örn. '25 kg') yalnızca o sayının yazıldığı malzemeye aittir; sayısı yazılmayan \
+cihazlar için miktar=1 ve ölçü birimi boş bırak.
+
+Örnek: 'Merkez Acıpınar => Akü - ORP - Şarj Kiti - Emiş çekvalfi - 25 kg Sıvı Klor' \
+satırı TAM OLARAK şu 5 ayrı kalem olur:
+1) koy=Merkez Acıpınar, malzeme_adi=Akü, miktar=1, olcu_birimi=(boş)
+2) koy=Merkez Acıpınar, malzeme_adi=ORP, miktar=1, olcu_birimi=(boş)
+3) koy=Merkez Acıpınar, malzeme_adi=Şarj Kiti, miktar=1, olcu_birimi=(boş)
+4) koy=Merkez Acıpınar, malzeme_adi=Emiş çekvalfi, miktar=1, olcu_birimi=(boş)
+5) koy=Merkez Acıpınar, malzeme_adi=Sıvı Klor, miktar=25, olcu_birimi=kg
 
 Çıktıyı yalnızca verilen araç (tool) ile, JSON şemasına göre döndür. Her kalem için \
 alan-bazlı güven (0.0-1.0) ekle; özellikle miktar ve köy adında emin değilsen düşük ver."""

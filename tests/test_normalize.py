@@ -1,5 +1,5 @@
 from core import normalize
-from core.normalize import kanonik, turkish_lower, birim_normalize, topla
+from core.normalize import kanonik, turkish_lower, birim_normalize, topla, bol_kalemler
 from core.schema import Kalem
 
 
@@ -43,6 +43,35 @@ def test_topla_miktar_toplama_kapali():
     kalemler = [_k("Köy A", "Pompa", 1, "Ad"), _k("Köy A", "Pompa", 3, "Ad")]
     sayfalar = topla(kalemler, miktar_topla=False)
     assert len(sayfalar[0].kalemler) == 2
+
+
+def test_bol_kalemler_ayri_satir():
+    # lumped materials with quantity on the last (measured) item
+    k = Kalem(koy="Merkez Acıpınar",
+              malzeme_adi="Akü - ORP - Şarj Kiti - Emiş çekvalfi - Sıvı Klor",
+              miktar=25, olcu_birimi="kg",
+              guven_koy=1.0, guven_malzeme=1.0, guven_miktar=1.0)
+    out = bol_kalemler([k])
+    assert [x.malzeme_adi for x in out] == ["Akü", "ORP", "Şarj Kiti", "Emiş çekvalfi", "Sıvı Klor"]
+    # only the last piece keeps 25/kg; others default to 1 / boş
+    assert [(x.miktar, x.olcu_birimi) for x in out] == [
+        (1, None), (1, None), (1, None), (1, None), (25, "kg")]
+    assert all(x.koy == "Merkez Acıpınar" for x in out)
+
+
+def test_bol_kalemler_tek_malzeme_dokunma():
+    k = Kalem(koy="A", malzeme_adi="Dalgıç Pompa", miktar=2, olcu_birimi="Ad",
+              guven_koy=1.0, guven_malzeme=1.0, guven_miktar=1.0)
+    out = bol_kalemler([k])
+    assert len(out) == 1 and out[0].malzeme_adi == "Dalgıç Pompa"
+
+
+def test_bol_kalemler_bilesik_kelime_bolunmez():
+    # "On-Off" (tiresiz boşluk yok) bölünmemeli
+    k = Kalem(koy="A", malzeme_adi="On-Off Vana", miktar=1,
+              guven_koy=1.0, guven_malzeme=1.0, guven_miktar=1.0)
+    out = bol_kalemler([k])
+    assert len(out) == 1 and out[0].malzeme_adi == "On-Off Vana"
 
 
 def test_koy_snap_bilinen():
