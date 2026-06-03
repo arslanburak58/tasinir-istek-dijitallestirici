@@ -20,14 +20,16 @@
     "merkez ikardalar": "Merkez Karalar",
     "merkez congar": "Merkez Çongar2",
     "merkez gozibey": "Merkez Gazibey",
-    "merkez kecili": "Merkez Keçiliz"
+    "merkez kecili": "Merkez Keçiliz",
+    "merkez gaypinar": "Merkez Çaypınar"
   },
   "malzeme": {
     "sarj kiti": "Solar Şarj Ünitesi",
     "pompa": "Tam Otomatik Klorlama Cihazı",
     "orp": "ORP Klor Ölçüm Cihazı",
     "aku": "Akü(Batarya)",
-    "klor": "Sıvı Klor"
+    "klor": "Sıvı Klor",
+    "ab": "Akü"
   },
   "birim": {
     "nan": "ad"
