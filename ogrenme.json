@@ -5,7 +5,10 @@
     "merkez kabardeal": "Merkez Kabasakal",
     "merkez kayurcel": "Merkez Koyuncu",
     "merkez basibuyuk": "Merkez Başıbüyükz",
-    "mayadibi karatek": "Merkez Kayadibi"
+    "mayadibi karatek": "Merkez Kayadibi",
+    "merkez civliner": "Merkez Güney",
+    "merkez kabardakal": "Merkez Kabasakal",
+    "merkez kayirci": "Merkez Koyuncu"
   },
   "malzeme": {
     "sarj kiti": "Solar Şarj Ünitesi",
@@ -15,6 +18,6 @@
     "klor": "Sıvı Klor"
   },
   "birim": {
-    "nan": "Ad."
+    "nan": "Ad"
   }
 }
