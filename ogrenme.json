@@ -21,7 +21,14 @@
     "merkez congar": "Merkez Çongar2",
     "merkez gozibey": "Merkez Gazibey",
     "merkez kecili": "Merkez Keçiliz",
-    "merkez gaypinar": "Merkez Çaypınar"
+    "merkez gaypinar": "Merkez Çaypınar",
+    "sarkisla kalekoy": "Şarkışla Kaleköyz",
+    "sarkisla hoyukkoy": "Şarkışla Hüyükköy",
+    "yildizeli karakas": "Yıldızeli Karakoç",
+    "merkez agli": "Merkez Aylı",
+    "merkez golpinar": "Merkez Gülpınar",
+    "merkez baspinar": "Merkez Beşpınar",
+    "yildizeli buyuktakoran": "Yıldızeli Büyükakören"
   },
   "malzeme": {
     "sarj kiti": "Solar Şarj Ünitesi",
@@ -29,9 +36,10 @@
     "orp": "ORP Klor Ölçüm Cihazı",
     "aku": "Akü(Batarya)",
     "klor": "Sıvı Klor",
-    "ab": "Akü"
+    "ab": "Akü",
+    "pompa+motor": "Pompa+Motor 5,5 kw 7,5 hp"
   },
   "birim": {
-    "nan": "ad"
+    "nan": "Adet"
   }
 }
