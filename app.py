@@ -159,36 +159,45 @@ if ss.rows is not None and len(ss.rows) > 0:
     # ------------------------------------------- 4) Taşınır kodu onayı
     st.header("4) Taşınır kodu")
     varsayilan_kod = config.KODU_VARSAYILAN
-    st.info(f"Belgeye varsayılan kod yazılacak: **{varsayilan_kod}**. Değiştirmek ister misiniz?")
-    secim_kod = st.radio(
-        "Kod",
-        [f"Varsayılanı kullan ({varsayilan_kod})", "Farklı kod gir"],
-        index=0, horizontal=True, key="kod_genel",
-    )
-    genel_kod = varsayilan_kod
-    if secim_kod.startswith("Farklı"):
-        genel_kod = st.text_input("Taşınır kodu", value=varsayilan_kod, key="kod_genel_metin").strip() \
-            or varsayilan_kod
+    farkli = kodlar.farkli_kodlar(edited["kodu"].tolist(), varsayilan_kod)
+
+    def _genel_kod_sor() -> str:
+        secim_kod = st.radio(
+            "Kod",
+            [f"Varsayılanı kullan ({varsayilan_kod})", "Farklı kod gir"],
+            index=0, horizontal=True, key="kod_genel",
+        )
+        if secim_kod.startswith("Farklı"):
+            return st.text_input("Taşınır kodu", value=varsayilan_kod, key="kod_genel_metin").strip() \
+                or varsayilan_kod
+        return varsayilan_kod
 
     kodu_haritasi = {}
-    farkli = kodlar.farkli_kodlar(edited["kodu"].tolist(), varsayilan_kod)
     if farkli:
         st.warning(f"⚠️ Fotoğrafta {len(farkli)} farklı kod görüldü — hangisi yazılsın?")
-    for ham in farkli:
-        malzemeler = ", ".join(sorted({
-            str(m) for m, k in zip(edited["malzeme_adi"], edited["kodu"])
-            if pd.notna(k) and str(k).strip() == ham
-        }))
-        secim = st.radio(
-            f"'{ham}' ({malzemeler})",
-            [f"Varsayılanı kullan ({genel_kod})", f"Fotoğraftakini kullan ({ham})", "Farklı kod gir"],
-            index=0, key=f"kod_{ham}",
-        )
-        if secim.startswith("Fotoğraftakini"):
-            kodu_haritasi[ham] = ham
-        elif secim.startswith("Farklı"):
-            girilen = st.text_input(f"'{ham}' yerine kod", value=genel_kod, key=f"kod_metin_{ham}").strip()
-            kodu_haritasi[ham] = girilen or genel_kod
+        for ham in farkli:
+            malzemeler = ", ".join(sorted({
+                str(m) for m, k in zip(edited["malzeme_adi"], edited["kodu"])
+                if pd.notna(k) and str(k).strip() == ham
+            }))
+            secim = st.radio(
+                f"'{ham}' ({malzemeler})",
+                [f"Varsayılanı kullan ({varsayilan_kod})", f"Fotoğraftakini kullan ({ham})", "Farklı kod gir"],
+                index=0, key=f"kod_{ham}",
+            )
+            if secim.startswith("Fotoğraftakini"):
+                kodu_haritasi[ham] = ham
+            elif secim.startswith("Farklı"):
+                girilen = st.text_input(f"'{ham}' yerine kod", value=varsayilan_kod,
+                                        key=f"kod_metin_{ham}").strip()
+                kodu_haritasi[ham] = girilen or varsayilan_kod
+            else:
+                kodu_haritasi[ham] = varsayilan_kod
+        with st.expander("Diğer satırların kodunu değiştir"):
+            genel_kod = _genel_kod_sor()
+    else:
+        st.info(f"Belgeye varsayılan kod yazılacak: **{varsayilan_kod}**. Değiştirmek ister misiniz?")
+        genel_kod = _genel_kod_sor()
 
     # ------------------------------------------- 5) Tarih / No onayı
     st.header("5) Tarih ve belge no")
