@@ -80,3 +80,17 @@ def test_koy_snap_bilinen():
     assert es.skor == 100.0
     assert not es.kullanici_onayi_gerek
     assert kanonik(es.onerilen) == kanonik("gaziköy")
+
+
+def test_farkli_kodlar_varsayilani_ve_boslari_eler():
+    v = "150.11.02.02.01."
+    assert normalize.farkli_kodlar([v, None, "", " opt-550 ", float("nan"), "opt-550"], v) == ["opt-550"]
+
+
+def test_kod_sec_soruya_verilen_cevabi_uygular():
+    v = "150.11.02.02.01."
+    assert normalize.kod_sec("opt-550", {}, v) == v                     # varsayılan: fotoğraftaki yazılmaz
+    assert normalize.kod_sec("opt-550", {"opt-550": "opt-550"}, v) == "opt-550"
+    assert normalize.kod_sec("opt-550", {"opt-550": "999"}, v) == "999"
+    assert normalize.kod_sec(None, {}, "888") == "888"
+    assert normalize.kod_sec(float("nan"), {}, v) == v

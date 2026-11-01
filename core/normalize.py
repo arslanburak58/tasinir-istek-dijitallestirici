@@ -10,7 +10,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Optional
+from typing import Iterable, Optional
 
 from rapidfuzz import fuzz, process
 
@@ -144,6 +144,19 @@ class KoySayfasi:
     kalemler: list[Kalem] = field(default_factory=list)
 
 
+def farkli_kodlar(kodlar: Iterable, varsayilan: str) -> list[str]:
+    """Distinct codes read from the photos that differ from the default."""
+    temiz = {str(k).strip() for k in kodlar if k is not None and k == k}
+    return sorted(k for k in temiz if k and k != varsayilan)
+
+
+def kod_sec(ham, kodu_haritasi: dict[str, str], genel_kod: str) -> str:
+    """Final code for an item: the user's answer for a differing photo code,
+    otherwise the document-wide code."""
+    ham = "" if ham is None or ham != ham else str(ham).strip()
+    return kodu_haritasi.get(ham) or genel_kod
+
+
 def topla(
     kalemler: list[Kalem],
     koy_haritasi: Optional[dict[str, str]] = None,
@@ -177,11 +190,11 @@ def topla(
 
 
 def _birlestir(kalemler: list[Kalem]) -> list[Kalem]:
-    """Merge identical (malzeme, birim) lines by summing quantities, order kept."""
+    """Merge identical (malzeme, birim, kodu) lines by summing quantities, order kept."""
     birikim: dict[tuple, Kalem] = {}
     sira: list[tuple] = []
     for k in kalemler:
-        anahtar = (turkish_lower(k.malzeme_adi.strip()), (k.olcu_birimi or "").strip().lower())
+        anahtar = (turkish_lower(k.malzeme_adi.strip()), (k.olcu_birimi or "").strip().lower(), k.kodu)
         if anahtar in birikim:
             mevcut = birikim[anahtar]
             birikim[anahtar] = mevcut.model_copy(update={

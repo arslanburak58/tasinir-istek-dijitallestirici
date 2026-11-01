@@ -54,7 +54,7 @@ st.caption(f"🧠 Öğrenilen düzeltmeler — köy: {_s['koy']} · malzeme: {_s
 
 KOLONLAR = ["koy", "malzeme_adi", "miktar", "olcu_birimi", "kodu",
             "guven_koy", "guven_malzeme", "guven_miktar"]
-GORUNUR = ["koy", "malzeme_adi", "miktar", "olcu_birimi", "kodu",
+GORUNUR = ["koy", "malzeme_adi", "miktar", "olcu_birimi",
            "guven_koy", "guven_malzeme", "guven_miktar"]
 
 
@@ -114,7 +114,6 @@ if ss.rows is not None and len(ss.rows) > 0:
             "malzeme_adi": "Malzeme",
             "miktar": st.column_config.NumberColumn("Miktar", min_value=0),
             "olcu_birimi": "Ölçü Birimi",
-            "kodu": "Kodu",
             "guven_koy": st.column_config.NumberColumn("Güven(köy)", disabled=True, format="%.2f"),
             "guven_malzeme": st.column_config.NumberColumn("Güven(malzeme)", disabled=True, format="%.2f"),
             "guven_miktar": st.column_config.NumberColumn("Güven(miktar)", disabled=True, format="%.2f"),
@@ -157,8 +156,42 @@ if ss.rows is not None and len(ss.rows) > 0:
         )
         koy_haritasi[ham] = es.onerilen if secim == yeni_etiket else secim
 
-    # ------------------------------------------- 4) Tarih / No onayı
-    st.header("4) Tarih ve belge no")
+    # ------------------------------------------- 4) Taşınır kodu onayı
+    st.header("4) Taşınır kodu")
+    varsayilan_kod = config.KODU_VARSAYILAN
+    st.info(f"Belgeye varsayılan kod yazılacak: **{varsayilan_kod}**. Değiştirmek ister misiniz?")
+    secim_kod = st.radio(
+        "Kod",
+        [f"Varsayılanı kullan ({varsayilan_kod})", "Farklı kod gir"],
+        index=0, horizontal=True, key="kod_genel",
+    )
+    genel_kod = varsayilan_kod
+    if secim_kod.startswith("Farklı"):
+        genel_kod = st.text_input("Taşınır kodu", value=varsayilan_kod, key="kod_genel_metin").strip() \
+            or varsayilan_kod
+
+    kodu_haritasi = {}
+    farkli = normalize.farkli_kodlar(edited["kodu"].tolist(), varsayilan_kod)
+    if farkli:
+        st.warning(f"⚠️ Fotoğrafta {len(farkli)} farklı kod görüldü — hangisi yazılsın?")
+    for ham in farkli:
+        malzemeler = ", ".join(sorted({
+            str(m) for m, k in zip(edited["malzeme_adi"], edited["kodu"])
+            if pd.notna(k) and str(k).strip() == ham
+        }))
+        secim = st.radio(
+            f"'{ham}' ({malzemeler})",
+            [f"Varsayılanı kullan ({genel_kod})", f"Fotoğraftakini kullan ({ham})", "Farklı kod gir"],
+            index=0, key=f"kod_{ham}",
+        )
+        if secim.startswith("Fotoğraftakini"):
+            kodu_haritasi[ham] = ham
+        elif secim.startswith("Farklı"):
+            girilen = st.text_input(f"'{ham}' yerine kod", value=genel_kod, key=f"kod_metin_{ham}").strip()
+            kodu_haritasi[ham] = girilen or genel_kod
+
+    # ------------------------------------------- 5) Tarih / No onayı
+    st.header("5) Tarih ve belge no")
     bugun = _dt.date.today()
     st.info(f"Belgeye bugünün tarihi yazılacak: **{bugun.strftime('%d.%m.%Y')}**. "
             "Değiştirmek ister misiniz?")
@@ -174,8 +207,8 @@ if ss.rows is not None and len(ss.rows) > 0:
         tarih_str = bugun.strftime("%d.%m.%Y")
     no = st.text_input("Belge No (opsiyonel)", value="")
 
-    # ------------------------------------------- 5) Üret / indir
-    st.header("5) Excel üret")
+    # ------------------------------------------- 6) Üret / indir
+    st.header("6) Excel üret")
     onay = st.checkbox("Verileri ve eşleştirmeleri kontrol ettim, onaylıyorum.")
     if st.button("Excel oluştur", type="primary", disabled=not onay):
         kalemler = [
@@ -184,7 +217,7 @@ if ss.rows is not None and len(ss.rows) > 0:
                 malzeme_adi=str(r["malzeme_adi"]),
                 miktar=float(r["miktar"] or 0),
                 olcu_birimi=(str(r["olcu_birimi"]).strip() or None) if pd.notna(r["olcu_birimi"]) else None,
-                kodu=(str(r["kodu"]).strip() or None) if pd.notna(r["kodu"]) else None,
+                kodu=normalize.kod_sec(r["kodu"], kodu_haritasi, genel_kod),
                 guven_koy=float(r["guven_koy"]), guven_malzeme=float(r["guven_malzeme"]),
                 guven_miktar=float(r["guven_miktar"]),
             )
