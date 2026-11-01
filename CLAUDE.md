@@ -23,7 +23,7 @@
 - Kaynak dosyanın veri alanı düzensiz (karışık 1-2 satır merge). Bu yüzden
   scripts/build_template.py tek seferlik TEMİZ bir şablon üretir: başlık
   bandı (r1-6) korunur, veri alanı r7'den 25 satırlık düzenli grid olarak
-  yeniden kurulur, footer config'ten basılır ([ad] yok, [ad]).
+  yeniden kurulur, footer adları Secrets'tan basılır (depoda isim yok, şablonda {{yer tutucu}}).
 - excel_writer SADECE bu temiz şablonu (templates/bos_sablon.xlsx) klonlar.
   Hücre haritası: A=sıra, B=KODU, C:D=f"{koy}\n{malzeme}" (wrap), E=birim,
   F=miktar, G=boş. Veri r7'den başlar.

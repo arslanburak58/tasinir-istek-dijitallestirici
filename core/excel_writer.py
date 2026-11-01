@@ -43,7 +43,17 @@ def _chunkla(kalemler: list, n: int) -> list[list]:
     return [kalemler[i:i + n] for i in range(0, len(kalemler), n)] or [[]]
 
 
+def _adlari_bas(ws) -> None:
+    """Stamp footer names from secrets over the template's {{placeholders}}."""
+    for row in ws.iter_rows():
+        for c in row:
+            if isinstance(c.value, str) and "{{" in c.value:
+                for anahtar, ad in config.FOOTER_ADLAR.items():
+                    c.value = c.value.replace("{{" + anahtar + "}}", ad)
+
+
 def _fill_sheet(ws, sayfa_koy: str, kalemler: list, tarih: str, no: Optional[str]):
+    _adlari_bas(ws)
     ws["E2"] = tarih
     if no:
         ws["G2"] = no if str(no).lower().startswith("no") else f"No: {no}"

@@ -59,16 +59,31 @@ def test_cd_merge_korunur(tmp_path, template_var):
     assert f"C{r}:D{r}" in merged
 
 
-def test_footer_ad_var_ad_yok(tmp_path, template_var):
+def test_footer_adlari_secretten_basilir(tmp_path, template_var, monkeypatch):
+    monkeypatch.setattr(config, "FOOTER_ADLAR", {
+        "istek_yapan": "Ad Bir", "kayit_yetkilisi": "Ad Iki", "birim_yoneticisi": "Ad Uc",
+    })
     sayfa = KoySayfasi(koy="Köy B", kalemler=[_k("Köy B", "X", 1)])
     out = tmp_path / "f.xlsx"
     excel_writer.yaz([sayfa], cikti_yolu=out)
     ws = load_workbook(out)["Köy B"]
     metin = "\n".join(str(c.value) for row in ws.iter_rows() for c in row if c.value)
-    assert "[ad]" in metin
-    assert "[ad]" not in metin
-    assert "Burak ARSLAN" in metin
-    assert "[ad]" in metin
+    assert "Ad Bir" in metin and "Ad Iki" in metin and "Ad Uc" in metin
+    assert "{{" not in metin
+
+
+def test_footer_ad_yoksa_form_yine_cikar(tmp_path, template_var, monkeypatch):
+    monkeypatch.setattr(config, "FOOTER_ADLAR", {
+        "istek_yapan": config.AD_BOS, "kayit_yetkilisi": config.AD_BOS,
+        "birim_yoneticisi": config.AD_BOS,
+    })
+    sayfa = KoySayfasi(koy="Köy B", kalemler=[_k("Köy B", "X", 1)])
+    out = tmp_path / "g.xlsx"
+    excel_writer.yaz([sayfa], cikti_yolu=out)
+    ws = load_workbook(out)["Köy B"]
+    metin = "\n".join(str(c.value) for row in ws.iter_rows() for c in row if c.value)
+    assert config.AD_BOS in metin
+    assert "{{" not in metin
 
 
 def test_25_satir_tasmasi_ikinci_sayfa(tmp_path, template_var):

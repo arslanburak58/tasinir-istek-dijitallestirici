@@ -53,6 +53,6 @@ pytest -q
 - Excel yazımında **pandas yok**; sadece `openpyxl` + `copy_worksheet`.
 - Kaynak dosyanın veri alanı düzensiz olduğu için **temiz şablon** türetilir:
   başlık bandı korunur, veri alanı r7'den 25 satırlık düzenli grid olur,
-  footer config'ten basılır ([ad] çıkarıldı, **[ad]** eklendi).
+  footer adları Secrets'tan basılır (depoda isim tutulmaz).
 - Hücre haritası: `A`=sıra, `B`=KODU, `C:D`=`{koy}\n{malzeme}` (wrap), `E`=birim,
   `F`=miktar, `G`=boş. 25 kalemi aşan köy → ikinci sayfa "KöyAdı 2".

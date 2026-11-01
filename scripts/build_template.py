@@ -7,8 +7,7 @@ from its sheet names.
 The source data area is hand-built and irregular (mixed 1- and 2-row merged
 items, sporadic SIRA NO merges). We keep the header band (rows 1-6) and the
 column widths exactly, then rebuild a REGULAR one-row-per-item grid starting at
-DATA_START_ROW, followed by a config-driven footer ([ad]; [ad]
-removed).
+DATA_START_ROW, followed by a config-driven footer ({{placeholders}}; names come from secrets).
 
 Run:  python scripts/build_template.py
 """

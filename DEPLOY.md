@@ -19,6 +19,9 @@ API kredini harcayamaz.
    ```toml
    ANTHROPIC_API_KEY = "sk-ant-...(kendi anahtarın)"
    APP_PAROLA = "sectigin-guclu-parola"
+   FOOTER_ISTEK_YAPAN = "Ad SOYAD"
+   FOOTER_KAYIT_YETKILISI = "Ad SOYAD"
+   FOOTER_BIRIM_YONETICISI = "Ad SOYAD"
    ```
    > Anahtarını `Desktop/exceller/.env` dosyasından kopyalayabilirsin
    > (`ANTHROPIC_API_KEY=` kısmından sonrası).

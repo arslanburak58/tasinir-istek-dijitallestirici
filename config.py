@@ -71,11 +71,19 @@ KOY_SNAP_ESIK = 95                # >= -> auto-snap to the matched known village
 KOY_SOR_ESIK = 88                 # [KOY_SOR_ESIK, KOY_SNAP_ESIK) -> ask the user
 GUVEN_DUSUK_ESIK = 0.6            # field confidence below this -> flagged in UI
 
-# --- Footer ([ad] removed; [ad] is the kayıt yetkilisi) ---
+# --- Footer. Personal names are NOT stored in the repo: the template holds
+# {{placeholders}} and excel_writer stamps these values (.env / st.secrets).
+# A missing name prints a blank line, it never breaks the form. ---
+AD_BOS = "........................"
+FOOTER_ADLAR = {
+    "istek_yapan": _secret("FOOTER_ISTEK_YAPAN", AD_BOS),
+    "kayit_yetkilisi": _secret("FOOTER_KAYIT_YETKILISI", AD_BOS),
+    "birim_yoneticisi": _secret("FOOTER_BIRIM_YONETICISI", AD_BOS),
+}
 FOOTER = {
-    "istek_yapan": {"ad": "Burak ARSLAN", "unvan": "Elektrik-Elektronik Mühendisi"},
-    "kayit_yetkilisi": {"ad": "[ad]", "unvan": "Taşınır Kayıt Yetkilisi"},
-    "birim_yoneticisi": {"ad": "[ad]", "unvan": "Su ve Kanal Hizmetleri Müdürü"},
+    "istek_yapan": {"ad": "{{istek_yapan}}", "unvan": "Elektrik-Elektronik Mühendisi"},
+    "kayit_yetkilisi": {"ad": "{{kayit_yetkilisi}}", "unvan": "Taşınır Kayıt Yetkilisi"},
+    "birim_yoneticisi": {"ad": "{{birim_yoneticisi}}", "unvan": "Su ve Kanal Hizmetleri Müdürü"},
 }
 FOOTER_METIN = {
     "istek_sol": "Birimimiz ihtiyacı için yukarıda belirtilen taşınırların verilmesi rica olunur.",
