@@ -9,7 +9,7 @@ import pandas as pd
 import streamlit as st
 
 import config
-from core import excel_writer, normalize, ogrenme, vision
+from core import excel_writer, kodlar, normalize, ogrenme, vision
 from core.schema import Kalem
 
 st.set_page_config(page_title="Taşınır İstek Belgesi Dijitalleştirici", layout="wide")
@@ -171,7 +171,7 @@ if ss.rows is not None and len(ss.rows) > 0:
             or varsayilan_kod
 
     kodu_haritasi = {}
-    farkli = normalize.farkli_kodlar(edited["kodu"].tolist(), varsayilan_kod)
+    farkli = kodlar.farkli_kodlar(edited["kodu"].tolist(), varsayilan_kod)
     if farkli:
         st.warning(f"⚠️ Fotoğrafta {len(farkli)} farklı kod görüldü — hangisi yazılsın?")
     for ham in farkli:
@@ -217,7 +217,7 @@ if ss.rows is not None and len(ss.rows) > 0:
                 malzeme_adi=str(r["malzeme_adi"]),
                 miktar=float(r["miktar"] or 0),
                 olcu_birimi=(str(r["olcu_birimi"]).strip() or None) if pd.notna(r["olcu_birimi"]) else None,
-                kodu=normalize.kod_sec(r["kodu"], kodu_haritasi, genel_kod),
+                kodu=kodlar.kod_sec(r["kodu"], kodu_haritasi, genel_kod),
                 guven_koy=float(r["guven_koy"]), guven_malzeme=float(r["guven_malzeme"]),
                 guven_miktar=float(r["guven_miktar"]),
             )
